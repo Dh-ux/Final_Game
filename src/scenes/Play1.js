@@ -34,16 +34,22 @@ class Play1 extends Phaser.Scene {
     update() {
         if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
           // easy mode
-          this.scene.start('playScene2'); 
-         
-           
+            game.settings = {
+                players: 1,
+                gameTimer: 20000
+            }
+            this.scene.start('playScene2'); 
         }
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
+            game.settings = {
+                players: 2,
+                gameTimer: 20000
+            }
             // easy mode
-            this.scene.start('playScene3'); 
+            this.scene.start('playScene2'); 
            
              
-          }
+        }
       
       }
 }
