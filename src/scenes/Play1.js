@@ -36,7 +36,7 @@ class Play1 extends Phaser.Scene {
           // easy mode
             game.settings = {
                 players: 1,
-                gameTimer: 20000
+                gameTimer: 60000
             }
             this.scene.start('playScene2'); 
         }
