@@ -8,10 +8,13 @@ class Menu extends Phaser.Scene {
         //this.load.image('cinderella','./assets/front.png');
         //this.load.image('choco','./assets/choco.png');
         //this.load.image('straw','./assets/straw.png');
+        this.load.audio('endbgm','./assets/gameover.wav');
+        this.load.audio('duang','./assets/duang.wav');
+        this.load.audio('click','./assets/click.wav');
     }
   
     create() {
-        this.grass = this.add.tileSprite(0, 0, 640, 640, 'background').setOrigin(0, 0);
+        this.background = this.add.tileSprite(0, 0, 640, 640, 'background').setOrigin(0, 0);
         /*this.music = this.sound.add('bgm', {
             volume: 0.5,
             loop: true
@@ -48,9 +51,12 @@ class Menu extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             game.settings = {
                 gameTimer: 40000,
-                clickTimer: 100
+                clickTimer: 100,
+                car: 0,
+                hair: 0,
+                wear: 0
             }
-            this.scene.start("playScene3"); 
+            this.scene.start("playScene1"); 
         }
       
     }

@@ -4,9 +4,10 @@ class Level1 extends Phaser.Scene {
     }
     preload() {
         this.load.audio('bgm','./assets/maze_bgm.wav');
+        this.load.audio('click','./assets/click.wav');
         this.load.image('card','./assets/card back.png');
         this.load.image('card2','./assets/card back2.png');
-        this.load.image('pumpkin','./assets/pumpkin carriage.png');
+        this.load.image('carriage','./assets/pumpkin carriage.png');
         this.load.image('mouse','./assets/mouse.png');
         this.load.image('rabbit','./assets/rabbit.png');
         this.load.image('horse','./assets/horse.png');
@@ -53,7 +54,7 @@ class Level1 extends Phaser.Scene {
             //this.score += 20;
         //}
         
-        this.pumpkin = this.add.sprite(game.config.width/2, game.config.height/2,'pumpkin');
+        this.pumpkin = this.add.sprite(game.config.width/2, game.config.height/2,'carriage');
         /*this.cardA = this.add.sprite(game.config.width/2 - 52.5, game.config.height/2 - 157.5,'mouse').setInteractive();
         this.cardB = this.add.sprite(game.config.width/2 + 52.5, game.config.height/2 - 157.5,'rabbit').setInteractive();
         this.cardC = this.add.sprite(game.config.width/2 - 157.5, game.config.height/2 - 157.5,'horse').setInteractive();
@@ -128,12 +129,18 @@ class Level1 extends Phaser.Scene {
         this.input.on('gameobjectdown',this.onObjectClicked);
         //this.score+=20;
         //this.scoreLeft.text = this.score;
+        this.startTime = new Date();
+        this.totalTime = 40;
+        this.timeElap = 0;
+        this.createTimer();
+        this.showGameTimer = this.time.addEvent({ delay: 10, callback: this.updateTimer(), callbackScope: this, loop: true });
         this.gameOver = false;
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart', scoreConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2, 'Failed', scoreConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (Space) to Continue', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
+        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
     /*clicking(){
         this.score += 20;
@@ -144,13 +151,27 @@ class Level1 extends Phaser.Scene {
     update() {
         if(Phaser.Input.Keyboard.JustDown(keyR)) {
             this.music.stop();
+            this.endsound = this.sound.add('endbgm', {
+                volume: 0.2,
+                loop: false
+            });
+            this.endsound.play();
             this.scene.start("menuScene");
+        }
+        if (this.gameOver) {
+            if(Phaser.Input.Keyboard.JustDown(keySPACE)) {
+                this.music.stop();
+                this.scene.start("playScene4");
+            }
         }
         this.magic.x = game.input.mousePointer.x;
         this.magic.y = game.input.mousePointer.y;
         //if (this.pointer.isDown) {
             //this.score += 20;
         //}
+        if(!this.gameOver){
+            this.updateTimer();
+        }
         if(!this.gameOver) {
             if(game.input.mousePointer.buttons == 1) {
                 if(this.checkCollision(this.magic, this.card1)) {
@@ -2456,6 +2477,7 @@ class Level1 extends Phaser.Scene {
                                                                 if (this.card15.appear == 2) {
                                                                     if (this.card16.appear == 2) {
                                                                         this.music.stop();
+                                                                        game.settings.car = 1;
                                                                         this.scene.start("playScene4"); 
                                                                     }
                                                                 }
@@ -2474,6 +2496,54 @@ class Level1 extends Phaser.Scene {
             }
         }
     }
+    createTimer(){
+
+        var me = this;
+        let timerConfig = {
+            fontFamily: 'Comic Sans MS',
+            fontSize: '36px',
+            backgroundColor: '#e1f2e8',
+            color: '#D43F4D',
+            align: 'center',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 70
+        }
+
+        me.timeLabel = me.add.text(20, 540, "00", timerConfig); 
+   
+
+    }
+    updateTimer(){
+
+        var me = this;
+
+        var currentTime = new Date();
+        var timeDifference = me.startTime.getTime() - currentTime.getTime();
+
+        //Time elapsed in seconds
+        me.timeElapsed = Math.abs(timeDifference / 1000);
+
+
+        //Time remaining in seconds
+        var timeRemaining = me.totalTime - me.timeElapsed; 
+        if(me.timeElapsed > me.totalTime){
+                this.gameOver = true;
+        }
+
+        //Convert seconds into minutes and seconds
+        var seconds = Math.floor(timeRemaining);
+
+        //Display minutes, add a 0 to the start if less than 10
+
+        //Display seconds, add a 0 to the start if less than 10
+
+        me.timeLabel.text = seconds;
+
+
+    }
     checkCollision(rocket, ship) {
         // simple AABB checking
         
@@ -2481,6 +2551,11 @@ class Level1 extends Phaser.Scene {
             rocket.x > ship.x && 
             rocket.y < ship.y + ship.height &&
             rocket.y > ship.y) {
+                this.clicksound = this.sound.add('click', {
+                    volume: 0.1,
+                    loop: false
+                });
+                this.clicksound.play();
                 return true;
         }
         else {
